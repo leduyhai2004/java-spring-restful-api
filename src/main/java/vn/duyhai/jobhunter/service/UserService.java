@@ -1,11 +1,15 @@
 package vn.duyhai.jobhunter.service;
 
-import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.duyhai.jobhunter.domain.User;
+import vn.duyhai.jobhunter.domain.dto.Meta;
+import vn.duyhai.jobhunter.domain.dto.ResultPaginationDTO;
 import vn.duyhai.jobhunter.repository.UserRepository;
 @Service
 public class UserService {
@@ -27,8 +31,20 @@ public class UserService {
         return null;
     }
 
-    public List<User> fetchAllUsers(){
-        return this.userRepository.findAll();
+    public ResultPaginationDTO fetchAllUsers(Specification<User> spec, Pageable pageable){
+        Page<User> pageUsers = this.userRepository.findAll(spec,pageable);
+        ResultPaginationDTO rs = new ResultPaginationDTO();
+        Meta mt = new Meta();
+
+        mt.setPage(pageable.getPageNumber()+1);
+        mt.setPageSize(pageable.getPageSize());
+
+        mt.setPages(pageUsers.getTotalPages());
+        mt.setTotal(pageUsers.getTotalElements());
+        rs.setMeta(mt);
+        rs.setResult(pageUsers.getContent());
+
+        return rs;
     }
 
     public User handleUpdateUser(User user){
