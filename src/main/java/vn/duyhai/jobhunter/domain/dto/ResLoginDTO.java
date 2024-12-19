@@ -1,15 +1,24 @@
 package vn.duyhai.jobhunter.domain.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
 public class ResLoginDTO {
     private String accessToken;
-
-    public String getAccessToken() {
-        return accessToken;
+    private UserLogin user;
+    
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UserLogin{
+        private long id;
+        private String name;
+        private String email;
     }
-
-    public void setAccessToken(String accessToken) {
-        this.accessToken = accessToken;
-    }
-
     
 }

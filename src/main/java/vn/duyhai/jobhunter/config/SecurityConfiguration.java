@@ -44,7 +44,7 @@ public class SecurityConfiguration {
             .cors(Customizer.withDefaults())
             .authorizeHttpRequests(
                 authz -> authz
-                .requestMatchers("/","/login").permitAll()
+                .requestMatchers("/","/api/v1/auth/login").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2ResourceServer((oauth2) -> oauth2.jwt(Customizer.withDefaults()) //tự động thêm BearerTokenAuthenticationFilter
@@ -65,7 +65,7 @@ public class SecurityConfiguration {
         JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new 
         JwtGrantedAuthoritiesConverter(); 
         grantedAuthoritiesConverter.setAuthorityPrefix(""); 
-        grantedAuthoritiesConverter.setAuthoritiesClaimName("duyhai"); 
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("user"); 
         JwtAuthenticationConverter jwtAuthenticationConverter = new 
         JwtAuthenticationConverter(); 
         jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter); 

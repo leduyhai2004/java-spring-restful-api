@@ -17,6 +17,8 @@ import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
+import vn.duyhai.jobhunter.domain.dto.ResLoginDTO;
+
 @Service
 public class SecurityUtil {
     private final JwtEncoder jwtEncoder;
@@ -30,12 +32,15 @@ public class SecurityUtil {
     @Value("${duyhai.jwt.base64-secret}") 
     private String jwtKey;
     
-    @Value("${duyhai.jwt.token-validity-in-seconds}") 
-    private long jwtExpiration;
+    @Value("${duyhai.jwt.access-token-validity-in-seconds}") 
+    private long accessTokenExpiration;
+
+    @Value("${duyhai.jwt.refresh-token-validity-in-seconds}") 
+    private long refreshTokenExpiration;
     
-    public String createToken(Authentication authentication){
+    public String createAccessToken(Authentication authentication, ResLoginDTO.UserLogin dto){
         Instant now = Instant.now(); 
-        Instant validity = now.plus(this.jwtExpiration, ChronoUnit.SECONDS); 
+        Instant validity = now.plus(this.accessTokenExpiration, ChronoUnit.SECONDS); 
      
  
         // @formatter:off 
@@ -43,7 +48,23 @@ public class SecurityUtil {
             .issuedAt(now) 
             .expiresAt(validity) 
             .subject(authentication.getName()) 
-            .claim("duyhai", authentication) 
+            .claim("user", dto) 
+            .build(); //phần body của JWT
+ 
+        JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build(); 
+        return this.jwtEncoder.encode(JwtEncoderParameters.from(jwsHeader, claims)).getTokenValue();
+    }
+    public String createRefreshToken(String email, ResLoginDTO dto){
+        Instant now = Instant.now(); 
+        Instant validity = now.plus(this.refreshTokenExpiration, ChronoUnit.SECONDS); 
+     
+ 
+        // @formatter:off 
+        JwtClaimsSet claims = JwtClaimsSet.builder() 
+            .issuedAt(now) 
+            .expiresAt(validity) 
+            .subject(email) 
+            .claim("user", dto.getUser()) 
             .build(); //phần body của JWT
  
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build(); 
