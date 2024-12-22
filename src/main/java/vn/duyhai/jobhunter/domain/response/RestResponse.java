@@ -1,4 +1,4 @@
-package vn.duyhai.jobhunter.domain;
+package vn.duyhai.jobhunter.domain.response;
 
 public class RestResponse<T> {
     private int statusCode;

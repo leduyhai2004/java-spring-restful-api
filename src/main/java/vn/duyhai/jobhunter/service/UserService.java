@@ -10,11 +10,10 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.duyhai.jobhunter.domain.User;
-import vn.duyhai.jobhunter.domain.dto.Meta;
-import vn.duyhai.jobhunter.domain.dto.ResCreateUserDTO;
-import vn.duyhai.jobhunter.domain.dto.ResUpdateUserDTO;
-import vn.duyhai.jobhunter.domain.dto.ResUserDTO;
-import vn.duyhai.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.duyhai.jobhunter.domain.response.ResCreateUserDTO;
+import vn.duyhai.jobhunter.domain.response.ResUpdateUserDTO;
+import vn.duyhai.jobhunter.domain.response.ResUserDTO;
+import vn.duyhai.jobhunter.domain.response.ResultPaginationDTO;
 import vn.duyhai.jobhunter.repository.UserRepository;
 @Service
 public class UserService {
@@ -56,7 +55,7 @@ public class UserService {
         Page<User> pageUsers = this.userRepository.findAll(spec,pageable);
 
         ResultPaginationDTO rs = new ResultPaginationDTO();
-        Meta mt = new Meta();
+        ResultPaginationDTO.Meta mt = new ResultPaginationDTO.Meta();
 
         mt.setPage(pageable.getPageNumber()+1);
         mt.setPageSize(pageable.getPageSize());

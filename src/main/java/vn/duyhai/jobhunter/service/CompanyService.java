@@ -8,8 +8,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import vn.duyhai.jobhunter.domain.Company;
-import vn.duyhai.jobhunter.domain.dto.Meta;
-import vn.duyhai.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.duyhai.jobhunter.domain.response.ResultPaginationDTO;
 import vn.duyhai.jobhunter.repository.CompanyRepository;
 
 @Service
@@ -29,7 +28,7 @@ public class CompanyService {
     public ResultPaginationDTO fetchAllCompany(Specification<Company> spec,Pageable pageable){
         Page<Company> pageCompanies = this.companyRepository.findAll(spec,pageable);
         ResultPaginationDTO rs = new ResultPaginationDTO();
-        Meta mt = new Meta();
+        ResultPaginationDTO. Meta mt = new ResultPaginationDTO.Meta();
 
         mt.setPage(pageable.getPageNumber()+1);
         mt.setPageSize(pageable.getPageSize());

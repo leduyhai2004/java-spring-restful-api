@@ -17,7 +17,7 @@ import com.turkraft.springfilter.boot.Filter;
 
 import jakarta.validation.Valid;
 import vn.duyhai.jobhunter.domain.Company;
-import vn.duyhai.jobhunter.domain.dto.ResultPaginationDTO;
+import vn.duyhai.jobhunter.domain.response.ResultPaginationDTO;
 import vn.duyhai.jobhunter.service.CompanyService;
 import vn.duyhai.jobhunter.util.anotation.ApiMessage;
 import vn.duyhai.jobhunter.util.error.IdInvalidException;

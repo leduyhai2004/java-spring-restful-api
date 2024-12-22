@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import jakarta.servlet.http.HttpServletResponse;
-import vn.duyhai.jobhunter.domain.RestResponse;
+import vn.duyhai.jobhunter.domain.response.RestResponse;
 import vn.duyhai.jobhunter.util.anotation.ApiMessage;
 
 @ControllerAdvice

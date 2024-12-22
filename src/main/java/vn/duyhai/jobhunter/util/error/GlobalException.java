@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import vn.duyhai.jobhunter.domain.RestResponse;
+import vn.duyhai.jobhunter.domain.response.RestResponse;
 
 @RestControllerAdvice
 public class GlobalException {   
