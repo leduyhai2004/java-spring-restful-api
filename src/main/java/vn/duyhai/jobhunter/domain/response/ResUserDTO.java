@@ -20,5 +20,15 @@ public class ResUserDTO {
     private String address;
     private Instant createdAt;
     private Instant updatedAt;
+    private CompanyUser companyUser;
+
+
+    @Getter
+    @Setter
+    public static class CompanyUser{
+        private long id;
+        private String name;
+    }
+
     // result is retruned when get all user
 }
