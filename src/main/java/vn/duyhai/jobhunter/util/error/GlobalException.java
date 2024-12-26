@@ -56,4 +56,15 @@ public class GlobalException {
         res.setMessage("404 Not found. URL may not exist");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res);
     }
+
+    @ExceptionHandler(value = {
+        StorageException.class,
+    }) // lỗi ở controller thì sẽ nhảy vào đây
+    public ResponseEntity<RestResponse<Object>> handleFileUploadException(Exception ex) { 
+        RestResponse<Object> res = new RestResponse<Object>();
+        res.setStatusCode(HttpStatus.BAD_REQUEST.value());
+        res.setError(ex.getMessage());
+        res.setMessage("Something upload file ...");
+        return  ResponseEntity.status(HttpStatus.BAD_REQUEST).body(res); 
+    } // xử lý điền sai thông tin đăng nhập và mật khẩu
 }

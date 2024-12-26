@@ -3,8 +3,8 @@ package vn.duyhai.jobhunter.domain;
 import java.time.Instant;
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,6 +15,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
@@ -24,56 +26,62 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 import vn.duyhai.jobhunter.util.SecurityUtil;
-import vn.duyhai.jobhunter.util.constant.GenderEnum;
+import vn.duyhai.jobhunter.util.constant.LevelEnum;
 
 @Entity
-@Table(name ="users")
+@Table(name ="jobs")
 @Getter
 @Setter
-public class User {
-    @Id 
+public class Job {
+    @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @NotBlank(message = "name không được để trống")
     private String name;
 
-    @NotBlank(message="email must not be empty")
-    private String email;
+    @NotBlank(message = "location không được để trống")
+    private String location;
 
-    @NotBlank(message="email must not be empty")
-    private String password;
-    private int age;
+    private double salary;
+
+    private int quantity;
 
     @Enumerated(EnumType.STRING)
-    private GenderEnum gender;
+    private LevelEnum level;
 
-    private String address;
+    @Column(columnDefinition = "MEDIUMTEXT")
+    private String description;
 
-    @Column(columnDefinition= "MEDIUMTEXT")
-    private String refreshToken;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:SS a",timezone ="GMT+7")
+    private Instant startDate;
+    private Instant endDate;
+    private boolean active;
     private Instant createdAt;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:SS a",timezone ="GMT+7")
     private Instant updatedAt;
     private String createdBy;
-    private String updatedBy; 
+    private String updatedBy;
 
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @OneToMany(mappedBy= "user",fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JsonIgnoreProperties(value = { "jobs" })
+    @JoinTable(name = "job_skill", joinColumns = @JoinColumn(name = "job_id"), inverseJoinColumns = @JoinColumn(name = "skill_id"))
+    private List<Skill> skills;
+
+    @OneToMany(mappedBy= "job",fetch = FetchType.LAZY)
     @JsonIgnore
     List<Resume> resumes;
 
     @PrePersist
-    public void handleBeforeCreated(){
-        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true ?
-                                    SecurityUtil.getCurrentUserLogin().get() : "" ;
+    public void handleBeforeCreate() {
+        this.createdBy = SecurityUtil.getCurrentUserLogin().isPresent() == true
+                ? SecurityUtil.getCurrentUserLogin().get()
+                : "";
+
         this.createdAt = Instant.now();
     }
-
 
     @PreUpdate
     public void handleBeforeUpdate() {

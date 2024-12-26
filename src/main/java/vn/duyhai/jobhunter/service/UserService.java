@@ -124,6 +124,12 @@ public class UserService {
     public ResUpdateUserDTO convertToResUpdateDTO(User user){
        
         ResUpdateUserDTO res = new ResUpdateUserDTO();
+        ResUpdateUserDTO.CompanyUser com = new ResUpdateUserDTO.CompanyUser();
+        if(user.getCompany() != null){
+            com.setId(user.getCompany().getId());
+            com.setName(user.getCompany().getName());
+            res.setCompanyUser(com);
+        }
         res.setId(user.getId());
         res.setName(user.getName());
         res.setAge(user.getAge()) ;
@@ -140,8 +146,14 @@ public class UserService {
             currentUser.setGender(user.getGender());
             currentUser.setAge(user.getAge());
             currentUser.setAddress(user.getAddress());
-            currentUser = this.userRepository.save(currentUser);
         }
+        //check company
+        if(user.getCompany() != null){
+            Optional<Company> companyOptional = this.companyService.findById(user.getCompany().getId());
+            user.setCompany(companyOptional.isPresent() ? companyOptional.get() : null);
+        }
+        //update
+        currentUser = this.userRepository.save(currentUser);
         return currentUser;
     }
     public User handleGetUserByUserName(String username){
