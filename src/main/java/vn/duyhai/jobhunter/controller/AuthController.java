@@ -3,12 +3,14 @@ package vn.duyhai.jobhunter.controller;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.Valid;
 import vn.duyhai.jobhunter.domain.User;
 import vn.duyhai.jobhunter.domain.request.ReqLoginDTO;
+import vn.duyhai.jobhunter.domain.response.ResCreateUserDTO;
 import vn.duyhai.jobhunter.domain.response.ResLoginDTO;
 import vn.duyhai.jobhunter.service.UserService;
 import vn.duyhai.jobhunter.util.SecurityUtil;
@@ -35,15 +38,34 @@ public class AuthController {
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private final SecurityUtil securityUtil;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
     
     @Value("${duyhai.jwt.refresh-token-validity-in-seconds}") 
     private long refreshTokenExpiration;
     public AuthController(AuthenticationManagerBuilder authenticationManagerBuilder,
-                                SecurityUtil securityUtil,UserService userService){
+                                SecurityUtil securityUtil,UserService userService,
+                                PasswordEncoder passwordEncoder){
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtil = securityUtil;
         this.userService = userService;
+        this.passwordEncoder = passwordEncoder;
     }
+
+    @PostMapping("/auth/register")
+    @ApiMessage("Register a new user")
+    public ResponseEntity<ResCreateUserDTO> postMethodName(@Valid @RequestBody User user) throws IdInvalidException {
+        boolean isEmailExist = this.userService.isEmailExist(user.getEmail());
+        if(isEmailExist){
+            throw new IdInvalidException("email "+ user.getEmail()+" is existed, please use different email");
+        }
+        String hashPassword = this.passwordEncoder.encode(user.getPassword());
+        user.setPassword(hashPassword);
+        User newUser = this.userService.handleCreateUser(user);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(this.userService.convertToResCreateUserDTO(newUser));
+    }
+    
+
     @PostMapping("auth/login")
     public ResponseEntity<ResLoginDTO> login( @Valid @RequestBody ReqLoginDTO loginDTO){
         //Nạp input gồm username/password vào Security 
@@ -62,10 +84,12 @@ public class AuthController {
         User currentUserDB = this.userService.handleGetUserByUserName(loginDTO.getUsername());
         if(currentUserDB != null){
             ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(),
-                                            currentUserDB.getEmail(),currentUserDB.getName());
+                                            currentUserDB.getEmail(),currentUserDB.getName(),
+                                            currentUserDB.getRole());
             res.setUser(userLogin);  
         }
-        String access_token = this.securityUtil.createAccessToken(authentication.getName(),res.getUser());
+        //create access token
+        String access_token = this.securityUtil.createAccessToken(authentication.getName(),res);
         res.setAccessToken(access_token);
 
         //create refresh token
@@ -99,6 +123,8 @@ public class AuthController {
             userLogin.setId(currentUserDB.getId());
             userLogin.setEmail(currentUserDB.getEmail());
             userLogin.setName(currentUserDB.getName());
+            userLogin.setRole(currentUserDB.getRole());
+
             userGetAccount.setUser(userLogin);
         }
         return ResponseEntity.ok().body(userGetAccount);
@@ -124,10 +150,11 @@ public class AuthController {
        User currentUserDB = this.userService.handleGetUserByUserName(email);
        if(currentUserDB != null){
            ResLoginDTO.UserLogin userLogin = new ResLoginDTO.UserLogin(currentUserDB.getId(),
-                                           currentUserDB.getEmail(),currentUserDB.getName());
+                                           currentUserDB.getEmail(),currentUserDB.getName(),
+                                           currentUserDB.getRole());
            res.setUser(userLogin);  
        }
-       String access_token = this.securityUtil.createAccessToken(email,res.getUser());
+       String access_token = this.securityUtil.createAccessToken(email,res);
        res.setAccessToken(access_token);
 
        //create refresh token
