@@ -51,7 +51,7 @@ public class PermissionInterceptor implements HandlerInterceptor {
                     }
                      System.out.println("------>is allow:"+isAllowed);
                 }else{
-                    throw new PermissionException("you do not have permission");
+                    throw new PermissionException("you do not have permission1");
                 }
                 
             }
